@@ -1,5 +1,5 @@
 PLAY_BOARD = [" " for x in range(100)]
-POSSIBLE_COMMANDS = ["user", "bot", "exit"]
+POSSIBLE_COMMANDS = ["A", "B", "exit"]
 START_MARK = "X"
 
 
@@ -11,18 +11,8 @@ def display_board(board):
         num_str = str(i + 1)
         if i < 9:
             num_str += " "
-        print(num_str, "|",
-              board[i*10],
-              board[i*10+1],
-              board[i*10+2],
-              board[i*10+3],
-              board[i*10+4],
-              board[i*10+5],
-              board[i*10+6],
-              board[i*10+7],
-              board[i*10+8],
-              board[i*10+9],
-              "|")
+        line = [board[i*10+j] for j in range(10)]
+        print(num_str, "|", *line, "|")
     print("   -----------------------")
 
 
@@ -31,30 +21,15 @@ def cell_check(board, pos):
     return board[pos] == " "
 
 
-def check_two(five, mark):
-    """Checks if five elements in a row contains 2 same mark and 3 empty"""
-    return five.count(mark) == 2 and five.count(" ") == 3
-
-
-def check_three(five, mark):
-    """Checks if five elements in a row contains 3 same mark and 2 empty"""
-    return five.count(mark) == 3 and five.count(" ") == 2
-
-
-def check_four(five, mark):
-    """Checks if 5 elements in a row contains 4 same mark and 1 empty"""
-    return five.count(mark) == 4 and five.count(" ") == 1
-
-
 def check_five(five, mark):
     """Checks if 5 elements in a row have same mark"""
     return five.count(mark) == 5
 
 
-def check_line(row, mark, check_func):
+def check_line(row, mark):
     """Applies check function to lines(from length 5 to 10)"""
     for i in range(len(row)-4):
-        if check_func(row[i:i+5], mark):
+        if check_five(row[i:i+5], mark):
             return True
     return False
 
@@ -64,15 +39,15 @@ def empty_indexes(board):
     return [x for x, val in enumerate(board) if val == " "]
 
 
-def check_board(board, mark, check_func):
+def check_board(board, mark):
     """Checks full board for 5 in row marks"""
     for i in range(10):
-        if check_line(board[i*10:i*10+10], mark, check_func) or \
-                check_line(board[i::10], mark, check_func) or \
-                check_line(board[i:100-i*10:11], mark, check_func) or \
-                check_line(board[i*10:100-i:11], mark, check_func) or \
-                check_line(board[i*10+9:90+i+1:9], mark, check_func) or \
-                check_line(board[i:i*10+1:9], mark, check_func):
+        if check_line(board[i*10:i*10+10], mark) or \
+                check_line(board[i::10], mark) or \
+                check_line(board[i:100-i*10:11], mark) or \
+                check_line(board[i*10:100-i:11], mark) or \
+                check_line(board[i*10+9:90+i+1:9], mark) or \
+                check_line(board[i:i*10+1:9], mark):
             return True
     return False
 
@@ -80,24 +55,12 @@ def check_board(board, mark, check_func):
 def minimax(board, mark, depth, is_max):
     """Returns score for empty index"""
     opos_mark = "O" if mark == "X" else "X"
-    if board.count(" ") > 35 and depth == 2:
+    if depth == 2:
         return 0
-    if check_board(board, mark, check_five):
+    if check_board(board, mark):
         return -40
-    elif check_board(board, opos_mark, check_five):
+    elif check_board(board, opos_mark):
         return 40
-    elif check_board(board, mark, check_four):
-        return -30
-    elif check_board(board, opos_mark, check_four):
-        return 30
-    elif check_board(board, mark, check_three):
-        return -20
-    elif check_board(board, opos_mark, check_three):
-        return 20
-    elif check_board(board, mark, check_two):
-        return -10
-    elif check_board(board, opos_mark, check_two):
-        return 10
     elif len(empty_indexes(board)) == 0:
         return 1
 
@@ -144,7 +107,7 @@ def user_choice(board):
             print("You should enter numbers!")
             continue
         except IndexError:
-            print("You should enter at least something!")
+            print("There should be 2 numbers with space between them!")
             continue
         if 0 < x < 11 and 0 < y < 11:
             pos = (x - 1) * 10 + y - 1
@@ -157,11 +120,11 @@ def user_choice(board):
 
 def game_status(board):
     """Prints games status and returns state"""
-    if check_board(board, "X", check_five):
+    if check_board(board, "X"):
         print("O wins")
-    elif check_board(board, "O", check_five):
+    elif check_board(board, "O"):
         print("X wins")
-    elif not check_board(board, "X", check_five) and not check_board(board, "O", check_five) and " " not in board:
+    elif not check_board(board, "X") and not check_board(board, "O") and " " not in board:
         print("Draw")
     else:
         return True
@@ -171,16 +134,12 @@ def game_status(board):
 def game_mode():
     """Reads commands"""
     while True:
-        print("To start game type: start user(or bot) user(or bot). If you want to exit type: exit")
+        print('To start game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.')
         input_command = input("Input command: ")
-        if input_command == POSSIBLE_COMMANDS[-1]:
+        if input_command == "exit":
             return "exit"
-        input_command = input_command.split()
-        if len(input_command) == 3:
-            if input_command[0] == "start" and \
-                    input_command[1] in POSSIBLE_COMMANDS[:2] and \
-                    input_command[2] in POSSIBLE_COMMANDS[:2]:
-                return input_command[1], input_command[2]
+        if input_command in POSSIBLE_COMMANDS[:2]:
+            return input_command
         print("Bad parameters!")
 
 
@@ -189,21 +148,15 @@ def game_process(board_orig, curr_mark_orig):
     while True:
         board = board_orig[:]
         curr_mark = curr_mark_orig
-        commands = game_mode()
-        if commands == "exit":
+        command = game_mode()
+        if command == "exit":
             break
         display_board(board)
         while game_status(board):
-            if curr_mark == "X":
-                if commands[0] == "user":
-                    player_position = user_choice(board)
-                else:
-                    player_position = cord_bot(board, curr_mark)
+            if command == "A" and curr_mark == "X":
+                player_position = user_choice(board)
             else:
-                if commands[1] == "user":
-                    player_position = user_choice(board)
-                else:
-                    player_position = cord_bot(board, curr_mark)
+                player_position = cord_bot(board, curr_mark)
             board[player_position] = curr_mark
             curr_mark = "O" if curr_mark == "X" else "X"
             display_board(board)

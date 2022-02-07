@@ -14,12 +14,13 @@ cd tic-tac-toe_10x10
 python index.py
 ```
 
-To start game type: start user(or bot) user(or bot). If you want to exit type: exit
+To start game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.
 
 Example:
 ```bash
-start user bot
+A
 ```
+Will start a game User vs Bot.
 
 
 

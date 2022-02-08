@@ -134,7 +134,7 @@ def game_status(board):
 def game_mode():
     """Reads commands"""
     while True:
-        print('To start game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.')
+        print('To start a game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.')
         input_command = input("Input command: ")
         if input_command == "exit":
             return "exit"

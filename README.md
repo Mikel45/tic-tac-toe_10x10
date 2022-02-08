@@ -14,7 +14,7 @@ cd tic-tac-toe_10x10
 python index.py
 ```
 
-To start game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.
+To start a game type: "A" to play user vs bot, "B" to play bot vs bot, or "exit" if you want to finish.
 
 Example:
 ```bash
